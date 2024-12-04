@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from '../../providers/auth/AuthProvider'
 import UserManagement from '../../components/admin/UserManagement'
+import AdminLayout from '../../components/admin/AdminLayout'
 
 export default function AdminUsersPage() {
   const { currentUser, isAuthenticated } = useAuth()
@@ -21,5 +22,9 @@ export default function AdminUsersPage() {
     return null
   }
 
-  return <UserManagement />
+  return (
+    <AdminLayout>
+      <UserManagement />
+    </AdminLayout>
+  )
 } 
