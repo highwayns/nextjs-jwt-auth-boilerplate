@@ -108,7 +108,7 @@ const LoginPage = () => {
         </Button>
       </form>
       <LinkBox>
-        <Link href="/signup">Don&apos;t have an account? Sign up</Link>
+        <Link href="/register">Don&apos;t have an account? Sign up</Link>
       </LinkBox>
     </VStack>
   )

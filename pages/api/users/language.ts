@@ -3,11 +3,7 @@ import { prisma } from '../../../lib/db'
 import { withMiddlewares } from '../../../middlewares'
 import { authMiddleware, NextApiRequestWithUser } from '../../../middlewares/auth-middleware'
 
-enum Language {
-  EN = 'EN',
-  ZH = 'ZH',
-  JA = 'JA'
-}
+const validLanguages = ['EN', 'ZH', 'JA']
 
 export default withMiddlewares(authMiddleware, async (
   req: NextApiRequestWithUser,
@@ -20,13 +16,13 @@ export default withMiddlewares(authMiddleware, async (
   try {
     const { language } = req.body
 
-    if (!language || !Object.values(Language).includes(language)) {
+    if (!language || !validLanguages.includes(language)) {
       return res.status(400).json({ message: 'Invalid language' })
     }
 
     await prisma.user.update({
       where: { id: req.user.id },
-      data: { language }
+      data: { language: language as string }
     })
 
     return res.status(200).json({ success: true })
