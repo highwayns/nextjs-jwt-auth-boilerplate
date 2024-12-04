@@ -10,6 +10,7 @@ interface AuthContextData {
   logIn: (_data: LoginData) => Promise<void>
   logOut: () => void
   refreshSession: () => Promise<void>
+  loading: boolean
 }
 
 interface AuthProviderProps {
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextData>({
   logIn: () => Promise.resolve(),
   logOut: () => {},
   refreshSession: () => Promise.resolve(),
+  loading: true,
 })
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
@@ -184,6 +186,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         refreshSession,
         refreshToken,
         accessToken,
+        loading: false,
       }}
     >
       {children}

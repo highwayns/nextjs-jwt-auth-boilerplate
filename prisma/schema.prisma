@@ -29,6 +29,7 @@ model User {
   surname        String
   role           Role    @default(USER)
   enabled        Boolean @default(false)
+  status        UserStatus @default(PENDING)
   refreshToken   String?
   twoFactorToken String?
   Vote           Vote[]
@@ -61,4 +62,10 @@ model Vote {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
 }

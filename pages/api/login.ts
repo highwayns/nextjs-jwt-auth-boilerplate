@@ -11,31 +11,26 @@ const loginRoute = async (
   req: NextApiRequest,
   res: NextApiResponse<LoginApiResponse>
 ) => {
-  // Extract email and password from request body
-  const { email, password } = req.body as { email: string; password: string }
-
-  // If email or password is not present, return a 400 response
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: 'Missing email or password',
-    })
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: '方法不允许' })
   }
 
-  // Check if user exists in database
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  })
+  try {
+    const { email, password } = req.body
 
-  // If user does not exist, return a 401 response
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password',
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
-  } else {
+
+    if (!user) {
+      return res.status(401).json({ message: '邮箱或密码错误' })
+    }
+
+    // 检查用户状态
+    if (user.status === 'SUSPENDED') {
+      return res.status(403).json({ message: '账户已被停用' })
+    }
+
     // If user exists, check if password is correct using auth lib
     if (await auth.verifyPassword(password, user.password)) {
       // Keep only fields defined in SessionUser
@@ -86,6 +81,9 @@ const loginRoute = async (
         message: 'Invalid email or password',
       })
     }
+  } catch (error) {
+    console.error('Login error:', error)
+    return res.status(500).json({ message: '服务器错误' })
   }
 }
 
