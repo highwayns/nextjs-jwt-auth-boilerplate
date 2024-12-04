@@ -2,6 +2,7 @@ import { generateToken, verifyToken } from './jwt'
 
 import bcrypt from 'bcrypt'
 import { UserSession } from './types/auth'
+import jwt from 'jsonwebtoken'
 
 export const generateAccessToken = (payload: UserSession): string => {
   // If environment variable is not set, throw an error
@@ -74,4 +75,25 @@ export const verifyTwoFactorToken = (token: string) => {
   }
 
   return verifyToken(token, process.env.JWT_TWO_FACTOR_TOKEN_SECRET)
+}
+
+export function generateActivationToken(payload: {
+  email: string
+  name: string
+  surname: string
+}) {
+  return jwt.sign(payload, process.env.JWT_TWO_FACTOR_TOKEN_SECRET as string, {
+    expiresIn: process.env.JWT_TWO_FACTOR_TOKEN_EXPIRATION,
+  })
+}
+
+export function verifyActivationToken(token: string) {
+  return jwt.verify(
+    token,
+    process.env.JWT_TWO_FACTOR_TOKEN_SECRET as string
+  ) as {
+    email: string
+    name: string
+    surname: string
+  }
 }

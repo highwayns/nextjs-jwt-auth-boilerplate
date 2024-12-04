@@ -11,6 +11,10 @@ export async function sendEmail({ to, subject, text, html }: Options) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASSWORD,
     },
+    //requireTLS: true,
+    //tls: {
+    //  minVersion: 'TLSv1.2'
+    // }
   })
 
   // send mail with defined transport object
