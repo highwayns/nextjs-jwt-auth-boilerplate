@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { UserSession } from '../lib/types/auth'
 import { FiChevronDown, FiLogOut } from 'react-icons/fi'
+import NextLink from 'next/link'
 
 interface INavbarProfileProps {
   currentUser: UserSession
@@ -56,6 +57,9 @@ const NavbarProfile = ({ currentUser, onLogOut }: INavbarProfileProps) => {
           <MenuList>
             <MenuItem onClick={onLogOut} icon={<FiLogOut />}>
               Sign out
+            </MenuItem>
+            <MenuItem as={NextLink} href="/change-password">
+              修改密码
             </MenuItem>
           </MenuList>
         </Menu>
