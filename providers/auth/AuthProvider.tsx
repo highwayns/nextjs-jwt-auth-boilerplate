@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { UserSession } from '../../lib/types/auth'
 import { LoginApiResponse, RefreshApiResponse } from '../../pages/login/login'
+import { useTranslation } from 'react-i18next'
 
 interface AuthContextData {
   isAuthenticated: boolean

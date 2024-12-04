@@ -3,10 +3,12 @@ import { useRouter } from 'next/router'
 import { useAuth } from '../../providers/auth/AuthProvider'
 import UserLayout from '../../components/user/UserLayout'
 import { Box, Heading } from '@chakra-ui/react'
+import { useTranslation } from 'react-i18next'
 
 export default function UserBlogPage() {
   const { currentUser, isAuthenticated } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (isAuthenticated && !currentUser) {
@@ -15,13 +17,13 @@ export default function UserBlogPage() {
   }, [currentUser, isAuthenticated, router])
 
   if (!isAuthenticated || !currentUser) {
-    return <div>Loading...</div>
+    return <div>{t('blog.loading')}</div>
   }
 
   return (
     <UserLayout>
       <Box>
-        <Heading mb={6}>我的博客</Heading>
+        <Heading mb={6}>{t('blog.title')}</Heading>
         {/* 博客内容组件 */}
       </Box>
     </UserLayout>

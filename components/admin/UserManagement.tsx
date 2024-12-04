@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Role } from '@prisma/client'
+import { useTranslation } from 'react-i18next'
 
 enum UserStatus {
   PENDING = 'PENDING',
@@ -18,6 +19,7 @@ interface User {
 }
 
 export default function UserManagement() {
+  const { t } = useTranslation()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -75,21 +77,21 @@ export default function UserManagement() {
     }
   }
 
-  if (loading) return <div>加载中...</div>
-  if (error) return <div>错误: {error}</div>
+  if (loading) return <div>{t('userManagement.loading')}</div>
+  if (error) return <div>{t('userManagement.error')}{error}</div>
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">用户管理</h1>
+      <h1 className="text-2xl font-bold mb-4">{t('userManagement.title')}</h1>
       <table className="min-w-full bg-white">
         <thead>
           <tr>
-            <th className="px-4 py-2">ID</th>
-            <th className="px-4 py-2">邮箱</th>
-            <th className="px-4 py-2">姓名</th>
-            <th className="px-4 py-2">状态</th>
-            <th className="px-4 py-2">角色</th>
-            <th className="px-4 py-2">操作</th>
+            <th className="px-4 py-2">{t('userManagement.table.id')}</th>
+            <th className="px-4 py-2">{t('userManagement.table.email')}</th>
+            <th className="px-4 py-2">{t('userManagement.table.name')}</th>
+            <th className="px-4 py-2">{t('userManagement.table.status')}</th>
+            <th className="px-4 py-2">{t('userManagement.table.role')}</th>
+            <th className="px-4 py-2">{t('userManagement.table.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -129,7 +131,9 @@ export default function UserManagement() {
                     user.status === UserStatus.ACTIVE ? 'bg-red-500' : 'bg-green-500'
                   } text-white`}
                 >
-                  {user.status === UserStatus.ACTIVE ? '停用' : '启用'}
+                  {user.status === UserStatus.ACTIVE 
+                    ? t('userManagement.actions.suspend')
+                    : t('userManagement.actions.activate')}
                 </button>
               </td>
             </tr>

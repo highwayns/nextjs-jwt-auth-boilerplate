@@ -1,5 +1,7 @@
 import { Box, Flex, Heading, HStack } from '@chakra-ui/react'
 import Link from 'next/link'
+import LanguageSelector from './LanguageSelector'
+import { useTranslation } from 'react-i18next'
 
 interface INavbarProps {
   leftComponent?: React.ReactNode[] | React.ReactNode
@@ -8,6 +10,8 @@ interface INavbarProps {
 }
 
 const Navbar = ({ leftComponent, rightComponent, homeURL }: INavbarProps) => {
+  const { t } = useTranslation()
+
   return (
     <Box
       zIndex={10}
@@ -49,6 +53,7 @@ const Navbar = ({ leftComponent, rightComponent, homeURL }: INavbarProps) => {
           <HStack spacing={{ base: '0', md: '6' }} marginRight="2vh">
             {/* LEFT COMPONENT */}
             {rightComponent}
+            <LanguageSelector />
           </HStack>
         </Flex>
       </Flex>

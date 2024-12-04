@@ -30,6 +30,7 @@ model User {
   role           Role    @default(USER)
   enabled        Boolean @default(false)
   status        UserStatus @default(PENDING)
+  language      Language  @default(EN)
   refreshToken   String?
   twoFactorToken String?
   Vote           Vote[]
@@ -68,4 +69,10 @@ enum UserStatus {
   PENDING
   ACTIVE
   SUSPENDED
+}
+
+enum Language {
+  EN
+  ZH
+  JA
 }

@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "home": "首页",
+    "blog": "我的博客",
+    "users": "用户管理"
+  },
+  "auth": {
+    "login": "登录",
+    "logout": "退出",
+    "register": "注册"
+  },
+  "profile": {
+    "title": "个人资料",
+    "userId": "用户ID",
+    "username": "用户名",
+    "email": "邮箱",
+    "role": "角色"
+  },
+  "userManagement": {
+    "title": "用户管理",
+    "loading": "加载中...",
+    "error": "错误：",
+    "table": {
+      "id": "ID",
+      "email": "邮箱",
+      "name": "姓名",
+      "status": "状态",
+      "role": "角色",
+      "actions": "操作"
+    },
+    "actions": {
+      "suspend": "停用",
+      "activate": "启用"
+    },
+    "status": {
+      "PENDING": "待激活",
+      "ACTIVE": "正常",
+      "SUSPENDED": "已停用"
+    }
+  },
+  "blog": {
+    "title": "我的博客",
+    "loading": "加载中...",
+    "noPosts": "暂无文章",
+    "createPost": "写新文章",
+    "post": {
+      "title": "标题",
+      "content": "内容",
+      "publish": "发布",
+      "edit": "编辑",
+      "delete": "删除"
+    }
+  }
+} 

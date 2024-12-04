@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "My Blog",
+    "users": "User Management"
+  },
+  "auth": {
+    "login": "Log In",
+    "logout": "Log Out",
+    "register": "Register"
+  },
+  "profile": {
+    "title": "Your Profile",
+    "userId": "User ID",
+    "username": "Username",
+    "email": "Email",
+    "role": "Role"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "loading": "Loading...",
+    "error": "Error: ",
+    "table": {
+      "id": "ID",
+      "email": "Email",
+      "name": "Name",
+      "status": "Status",
+      "role": "Role",
+      "actions": "Actions"
+    },
+    "actions": {
+      "suspend": "Suspend",
+      "activate": "Activate"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended"
+    }
+  },
+  "blog": {
+    "title": "My Blog",
+    "loading": "Loading...",
+    "noPosts": "No posts yet",
+    "createPost": "Create New Post",
+    "post": {
+      "title": "Title",
+      "content": "Content",
+      "publish": "Publish",
+      "edit": "Edit",
+      "delete": "Delete"
+    }
+  }
+} 
