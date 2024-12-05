@@ -1,81 +1,38 @@
-import { TokenExpiredError } from 'jsonwebtoken'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { verifyToken } from '../lib/jwt'
-import { ApiResponse } from '../lib/types/api'
+import { verifyToken, refreshAccessToken } from '../lib/jwt'
 import { UserSession } from '../lib/types/auth'
 import { Middleware } from '../lib/types/middleware'
-import { prisma } from '../lib/db'
 
 export type NextApiRequestWithUser = NextApiRequest & {
   user: UserSession
 }
 
-// middleware.ts
-export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
-  req: NextApiRequestWithUser,
-  res: NextApiResponse<T>,
-  next?: Middleware
-) => {
-  // look for access token inside cookies
-  const token =
-    req.cookies && req.cookies.token ? req.cookies.token.split(' ')[0] : null
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Missing token',
-    } as T)
-  }
-
-  // Check if access token is valid
+export const authMiddleware: Middleware = async (req, res, next) => {
   try {
-    const decoded = await verifyToken(
-      token,
-      process.env.JWT_ACCESS_TOKEN_SECRET as string
-    )
-
-    // Ensure that a user has done 2 factor authentication (is twoFactorToken is NULL)
-    const user = await prisma.user.findUnique({
-      where: {
-        id: decoded.id,
-      },
-    })
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token',
-      } as T)
-    } else {
-      /*if (user.twoFactorToken) {
-        return res.status(401).json({
-          success: false,
-          message: '2 factor authentication is required, check your email',
-        } as T)
-      }*/
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' })
     }
 
-    // Add user to request
-    req.user = decoded
-
-    // and call next()
-    if (next) await next(req, res, undefined)
-
-    // Else, return
-    return res.status(200)
+    try {
+      await verifyToken(token, process.env.JWT_SECRET!)
+      if (next) await next(req, res)
+    } catch (error: any) {
+      if (error.name === 'TokenExpiredError') {
+        const refreshToken = req.cookies.refreshToken
+        if (refreshToken) {
+          try {
+            const newToken = await refreshAccessToken(refreshToken)
+            res.setHeader('Set-Cookie', `token=${newToken}; Path=/`)
+            if (next) await next(req, res)
+          } catch (refreshError) {
+            return res.status(401).json({ message: 'Token refresh failed' })
+          }
+        }
+      }
+      return res.status(401).json({ message: 'Invalid token' })
+    }
   } catch (error) {
-    // If token is just expired, try to refresh it
-    if (error instanceof TokenExpiredError) {
-      // answer with special error code
-      return res.status(498).json({
-        success: false,
-        message: 'Token expired',
-      } as T)
-    }
-
-    console.error('AUTH ERROR:', error)
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token',
-    } as T)
+    return res.status(500).json({ message: 'Server error' })
   }
 }

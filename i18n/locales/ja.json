@@ -46,9 +46,17 @@
     "post": {
       "title": "タイトル",
       "content": "内容",
-      "publish": "公開",
+      "publish": "投稿",
       "edit": "編集",
-      "delete": "削除"
+      "delete": "削除",
+      "titlePlaceholder": "タイトルを入力",
+      "contentPlaceholder": "内容を入力"
+    },
+    "error": {
+      "create": "投稿に失敗しました"
+    },
+    "success": {
+      "created": "投稿しました"
     }
   }
 } 

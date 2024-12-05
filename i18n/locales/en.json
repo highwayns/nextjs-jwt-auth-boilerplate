@@ -48,7 +48,15 @@
       "content": "Content",
       "publish": "Publish",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "titlePlaceholder": "Enter title",
+      "contentPlaceholder": "Enter content"
+    },
+    "error": {
+      "create": "Failed to create post"
+    },
+    "success": {
+      "created": "Post created successfully"
     }
   }
 } 

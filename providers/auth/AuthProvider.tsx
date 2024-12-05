@@ -10,7 +10,7 @@ interface AuthContextData {
   refreshToken: string | null
   logIn: (_data: LoginData) => Promise<void>
   logOut: () => void
-  refreshSession: () => Promise<void>
+  refreshSession: () => Promise<boolean>
   loading: boolean
 }
 
@@ -25,7 +25,7 @@ const AuthContext = createContext<AuthContextData>({
   refreshToken: null,
   logIn: () => Promise.resolve(),
   logOut: () => {},
-  refreshSession: () => Promise.resolve(),
+  refreshSession: () => Promise.resolve(false),
   loading: true,
 })
 
@@ -137,44 +137,34 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   const refreshSession = async () => {
-    // Read refresh token from localStorage if not found in provider state
-    if (!refreshToken) {
-      const token = localStorage.getItem('refreshToken')
-      if (token != null && token !== 'undefined') {
-        setRefreshToken(token)
-      } else {
-        return Promise.reject(new Error('Refresh token not found'))
-      }
-    }
-
-    // Send API request to refresh endpoint
-    return new Promise<void>((resolve, reject) => {
-      fetch('/api/refresh', {
+    try {
+      const response = await fetch('/api/refresh', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ refreshToken }),
       })
-        .then(res => res.json() as Promise<RefreshApiResponse>)
-        .then(res => {
-          if (res.success && res.data) {
-            // Overwrite current token with new one
-            document.cookie = `token=${res.data.token} secure`
 
-            // Refresh access token
-            setAccessToken(res.data.token)
+      const res = (await response.json()) as RefreshApiResponse
 
-            // Refreshed correctly
-            resolve()
-          } else {
-            reject(new Error(res.message))
-          }
-        })
-        .catch(err => {
-          reject(err)
-        })
-    })
+      if (res.success && res.data) {
+        // 更新 token
+        document.cookie = `token=${res.data.token}; path=/`
+        setAccessToken(res.data.token)
+        return true
+      } else {
+        // 刷新失败，清除所有状态并重定向到登录页
+        logOut()
+        window.location.href = '/login'
+        return false
+      }
+    } catch (err) {
+      // 发生错误，清除所有状态并重定向到登录页
+      logOut()
+      window.location.href = '/login'
+      return false
+    }
   }
 
   return (

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Role } from '@prisma/client'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../../providers/auth/AuthProvider'
 
 enum UserStatus {
   PENDING = 'PENDING',
@@ -23,6 +24,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { refreshSession } = useAuth()
 
   useEffect(() => {
     fetchUsers()
@@ -40,9 +42,30 @@ export default function UserManagement() {
           'Authorization': `Bearer ${token}`
         }
       })
-      if (!response.ok) throw new Error('获取用户列表失败')
-      const data = await response.json()
-      setUsers(data)
+
+      if (response.status === 401) {
+        const refreshSuccessful = await refreshSession()
+        if (!refreshSuccessful) return // 会自动重定向到登录页
+
+        const newToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('token='))
+          ?.split('=')[1]
+
+        const retryResponse = await fetch('/api/admin/users', {
+          headers: {
+            'Authorization': `Bearer ${newToken}`
+          }
+        })
+        
+        if (!retryResponse.ok) throw new Error('获取用户列表失败')
+        const data = await retryResponse.json()
+        setUsers(data)
+      } else {
+        if (!response.ok) throw new Error('获取用户列表失败')
+        const data = await response.json()
+        setUsers(data)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '未知错误')
     } finally {
@@ -65,13 +88,34 @@ export default function UserManagement() {
         },
         body: JSON.stringify({ userId, ...updates })
       })
-      
-      if (!response.ok) throw new Error('更新用户失败')
-      
-      const updatedUser = await response.json()
-      setUsers(users.map(user => 
-        user.id === updatedUser.id ? updatedUser : user
-      ))
+
+      if (response.status === 401) {
+        await refreshSession()
+        const newToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('token='))
+          ?.split('=')[1]
+        const retryResponse = await fetch('/api/admin/users', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${newToken}`
+          },
+          body: JSON.stringify({ userId, ...updates })
+        })
+        
+        if (!retryResponse.ok) throw new Error('更新用户失败')
+        const updatedUser = await retryResponse.json()
+        setUsers(users.map(user => 
+          user.id === updatedUser.id ? updatedUser : user
+        ))
+      } else {
+        if (!response.ok) throw new Error('更新用户失败')
+        const updatedUser = await response.json()
+        setUsers(users.map(user => 
+          user.id === updatedUser.id ? updatedUser : user
+        ))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '未知错误')
     }

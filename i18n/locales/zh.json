@@ -48,7 +48,15 @@
       "content": "内容",
       "publish": "发布",
       "edit": "编辑",
-      "delete": "删除"
+      "delete": "删除",
+      "titlePlaceholder": "请输入标题",
+      "contentPlaceholder": "请输入内容"
+    },
+    "error": {
+      "create": "发布失败"
+    },
+    "success": {
+      "created": "发布成功"
     }
   }
 } 

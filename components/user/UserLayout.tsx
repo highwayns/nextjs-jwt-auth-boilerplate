@@ -24,7 +24,7 @@ export default function UserLayout({ children }: UserLayoutProps) {
   ]
 
   return (
-    <Flex h="100vh">
+    <Flex h="100vh" as={'div' as any}>
       {/* 左侧菜单 */}
       <Box w="240px" bg="gray.100" p={4}>
         <VStack align="stretch" spacing={2}>

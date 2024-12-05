@@ -20,7 +20,7 @@ import { useAuth } from '../providers/auth/AuthProvider'
 
 import { prisma } from '../lib/db'
 import PostLibrary from '../components/PostLibrary'
-import { PostsApiResponse } from './api/posts'
+import { PostsApiResponse } from '../lib/types/api'
 import fetcher from '../util/fetcher'
 import withAuth from '../util/withAuth'
 import UserLayout from '../components/user/UserLayout'

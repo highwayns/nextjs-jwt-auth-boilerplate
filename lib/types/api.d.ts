@@ -1,5 +1,13 @@
-export type ApiResponse<T> = {
+import { Post } from '@prisma/client'
+
+export interface ApiResponse<T = any> {
   success: boolean
-  message?: string
   data?: T
+  message?: string
 }
+
+export interface PostsApiResponse extends ApiResponse {
+  data?: {
+    posts: Post[]
+  }
+} 
