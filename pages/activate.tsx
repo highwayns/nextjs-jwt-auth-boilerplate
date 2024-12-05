@@ -36,7 +36,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
       where: { email: decoded.email },
       data: {
         enabled: true,
-        twoFactorToken: null,
+        activationToken: null,
       },
     })
 

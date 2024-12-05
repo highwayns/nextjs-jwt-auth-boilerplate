@@ -33,6 +33,7 @@ model User {
   language      String    @default("EN")
   refreshToken   String?
   twoFactorToken String?
+  activationToken String?
   Vote           Vote[]
   posts          Post[]
 }

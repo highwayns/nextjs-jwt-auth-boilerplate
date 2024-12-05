@@ -53,7 +53,7 @@ const registerRoute = async (
         name,
         surname,
         role: 'USER',
-        twoFactorToken: activationToken,
+        activationToken: activationToken,
       },
     })
 
