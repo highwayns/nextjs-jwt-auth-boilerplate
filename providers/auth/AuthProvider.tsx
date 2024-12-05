@@ -168,7 +168,13 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const changePassword = async (otp: string, password: string) => {
     return new Promise<void>((resolve, reject) => {
-      fetcher<ChangePasswordApiResponse>('/api/change-password', { otp, password })
+      fetcher<ChangePasswordApiResponse>('/api/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ otp, password }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
         .then(res => {
           if (res.success) {
             // Password changed successfully

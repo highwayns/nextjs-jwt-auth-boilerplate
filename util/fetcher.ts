@@ -4,16 +4,16 @@ import { RefreshApiResponse } from '../pages/login/login'
 /**
  * Fetcher is a wrapper around fetch that adds the necessary headers and handles token refresh
  * @param url The url to fetch
- * @param isRetrying Whether this is a retry after a token refresh
+ * @param init The request init options
  * @returns The response from the fetch
  */
-const fetcher = <T>(url: string, isRetrying = false): Promise<T> =>
-  fetch(url)
+const fetcher = <T>(url: string, init?: RequestInit): Promise<T> =>
+  fetch(url, init)
     .then(async res => {
       // Check if response is ok
       if (res.status == 498) {
         // If not, check if we are already retrying
-        if (isRetrying) {
+        if (init && init.headers) {
           throw new Error('Unable to refresh token')
         }
 
@@ -36,7 +36,12 @@ const fetcher = <T>(url: string, isRetrying = false): Promise<T> =>
               cookie.set('token', refreshRes.data.token)
 
               // Retry the request
-              return fetcher<T>(url, true)
+              return fetcher<T>(url, {
+                ...init,
+                headers: {
+                  ...init?.headers,
+                },
+              })
             } else {
               throw new Error('Unable to refresh token')
             }
