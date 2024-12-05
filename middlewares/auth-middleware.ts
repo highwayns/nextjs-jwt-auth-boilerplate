@@ -1,38 +1,86 @@
+import { TokenExpiredError } from 'jsonwebtoken'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { verifyToken, refreshAccessToken } from '../lib/jwt'
+import { verifyToken } from '../lib/jwt'
+import { ApiResponse } from '../lib/types/api'
 import { UserSession } from '../lib/types/auth'
 import { Middleware } from '../lib/types/middleware'
+import { prisma } from '../lib/db'
+import { hasCookie, getCookie } from 'cookies-next'
+import { PUBLIC_PATHS } from '../lib/constants'
 
 export type NextApiRequestWithUser = NextApiRequest & {
   user: UserSession
 }
 
-export const authMiddleware: Middleware = async (req, res, next) => {
+// middleware.ts
+export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
+  req: NextApiRequestWithUser,
+  res: NextApiResponse<T>,
+  next?: Middleware
+) => {
+  // 检查是否是公开路径
+  const path = req.url
+  if (PUBLIC_PATHS.some(publicPath => path?.includes(publicPath))) {
+    if (next) await next(req, res)
+    return
+  }
+
+  // look for access token inside cookies
+  // Read cookie
+  const token = getCookie('token', { req, res })
+
+  // Check if token exists
+  if (!hasCookie('token', { req, res }) || !token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Missing token',
+    } as T)
+  }
+
+  // Check if access token is valid
+  let decoded
   try {
-    const token = req.headers.authorization?.split(' ')[1]
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' })
+    // Verify token
+    decoded = await verifyToken(
+      token.toString(),
+      process.env.JWT_ACCESS_TOKEN_SECRET as string
+    )
+  } catch (error) {
+    // If token is just expired, try to refresh it
+    if (error instanceof TokenExpiredError) {
+      // answer with special error code
+      return res.status(498).json({
+        success: false,
+        message: 'Token expired',
+      } as T)
     }
 
-    try {
-      await verifyToken(token, process.env.JWT_SECRET!)
-      if (next) await next(req, res)
-    } catch (error: any) {
-      if (error.name === 'TokenExpiredError') {
-        const refreshToken = req.cookies.refreshToken
-        if (refreshToken) {
-          try {
-            const newToken = await refreshAccessToken(refreshToken)
-            res.setHeader('Set-Cookie', `token=${newToken}; Path=/`)
-            if (next) await next(req, res)
-          } catch (refreshError) {
-            return res.status(401).json({ message: 'Token refresh failed' })
-          }
-        }
-      }
-      return res.status(401).json({ message: 'Invalid token' })
-    }
-  } catch (error) {
-    return res.status(500).json({ message: 'Server error' })
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token',
+    } as T)
   }
+
+  // Ensure that a user has done 2 factor authentication (is twoFactorToken is NULL)
+  const user = await prisma.user.findUnique({
+    where: {
+      id: decoded.id,
+    },
+  })
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token',
+    } as T)
+  }
+
+  // Add user to request
+  req.user = decoded
+
+  // and call next()
+  if (next) await next(req, res, undefined)
+
+  // Else, return
+  return res.status(200)
 }

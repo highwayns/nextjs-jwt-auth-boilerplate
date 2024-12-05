@@ -2,7 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import bcrypt from 'bcrypt'
 import { prisma } from '../../lib/db'
 import { sendEmail } from '../../lib/mail'
-import { generateActivationToken } from '../../lib/auth'
+import { generateTwoFactorToken } from '../../lib/auth'
+import { UserSession } from '../../lib/types/auth'
 
 export type RegisterApiResponse = {
   success: boolean
@@ -38,25 +39,39 @@ const registerRoute = async (
     // 加密密码
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // 生成激活token
-    const activationToken = generateActivationToken({
-      email,
-      name,
-      surname,
-    })
 
     // 创建用户
     const user = await prisma.user.create({
       data: {
+        id: 100,
         email,
         password: hashedPassword,
         name,
         surname,
         role: 'USER',
-        activationToken: activationToken,
+        enabled: false,
+        status: 'PENDING',
+        language: 'EN',
       },
     })
 
+    const session: UserSession = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        surname: user.surname,
+        role: user.role,
+      }
+
+    // 生成激活token
+    const activationToken = generateTwoFactorToken(session)
+    await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          activationToken: activationToken,
+        },
+      })
+  
     // 发送激活邮件
     await sendEmail({
       to: email,

@@ -45,7 +45,7 @@ export default function UserManagement() {
 
       if (response.status === 401) {
         const refreshSuccessful = await refreshSession()
-        if (!refreshSuccessful) return // 会自动重定向到登录页
+        if (refreshSuccessful === undefined) return // 会自动重定向到登录页
 
         const newToken = document.cookie
           .split('; ')

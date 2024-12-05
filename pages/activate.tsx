@@ -8,7 +8,7 @@ import {
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { verifyActivationToken } from '../lib/auth'
+import { verifyTwoFactorToken } from '../lib/auth'
 import { prisma } from '../lib/db'
 
 type Props = {
@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
   }
 
   try {
-    const decoded = await verifyActivationToken(token)
+    const decoded = await verifyTwoFactorToken(token)
     
     // 更新用户状态
     await prisma.user.update({

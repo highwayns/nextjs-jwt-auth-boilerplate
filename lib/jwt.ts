@@ -3,11 +3,7 @@
  */
 
 import { sign, verify } from 'jsonwebtoken'
-import { User, PrismaClient } from '@prisma/client'
-import { JwtPayload } from 'jsonwebtoken'
 import { UserSession } from './types/auth'
-
-const prisma = new PrismaClient()
 
 export const generateToken = <T extends Object | string>(
   payload: T,
@@ -44,25 +40,4 @@ export const verifyToken = (
       reject(err)
     }
   })
-}
-
-export const generateAccessToken = (user: User) => {
-  return sign({ id: user.id }, process.env.JWT_SECRET!, {
-    expiresIn: '24h'
-  })
-}
-
-export const refreshAccessToken = async (refreshToken: string) => {
-  try {
-    const decoded = verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id }
-    })
-
-    if (!user) throw new Error('User not found')
-
-    return generateAccessToken(user)
-  } catch (error) {
-    throw new Error('Invalid refresh token')
-  }
 }
