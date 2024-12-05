@@ -43,7 +43,6 @@ const registerRoute = async (
     // 创建用户
     const user = await prisma.user.create({
       data: {
-        id: 100,
         email,
         password: hashedPassword,
         name,

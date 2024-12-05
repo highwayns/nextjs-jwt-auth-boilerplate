@@ -7,4 +7,6 @@ export const PUBLIC_PATHS = [
   '/two-factor',
   '/api/register',
   '/api/login',
+  '/api/activate',
+  '/api/reset-password',
 ] as const 
